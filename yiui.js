@@ -1,3 +1,8 @@
+/*
+author:sam
+email:yiroon@qq.com
+2021
+*/
 /* transform的matrix互转 */
 function matrix(){return arguments;}
 function matrix3d(){return arguments;}
