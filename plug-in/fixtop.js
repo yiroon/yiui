@@ -1,9 +1,10 @@
 /*
 将元素固定在顶部
 <div fixtop="{parent:$('#main'),offset:10,maxOffset:300}"></div>
-parent为参照的对象，表示固定元素位置不能超出参照对象
-offset表示顶部偏移像素
-maxOffset 相对原位置最大偏移
+parent为参照的对象，表示固定元素位置不能超出参照对象,
+offset表示顶部偏移像素,
+maxOffset 相对原位置最大偏移,
+css 样式(对象方式)
 */
 $(function(){
     $$('[fixtop]').each(function(){
@@ -38,7 +39,10 @@ $(function(){
                     marginLeft:0,
                     marginTop:offset+'px',
                     width:mypos.width+'px'
-                })
+                });
+                if(config.css){
+                    $(clone).css(config.css);
+                }
                _this.after(clone);
                _this.css({visibility:'hidden'});
            }else if(typeof clone == 'object'){
