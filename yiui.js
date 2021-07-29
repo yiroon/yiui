@@ -1,8 +1,3 @@
-/*
-author:sam
-email:yiroon@qq.com
-2021
-*/
 /* transform的matrix互转 */
 function matrix(){return arguments;}
 function matrix3d(){return arguments;}
@@ -37,16 +32,13 @@ function _bind(obj){
         var _this = this;
         [].forEach.call(events,function(event){
             if(event.trim()){
-                if(_this[event]){
-                    _this[event](fn);
-                }else{
-                    _this.addEventListener(event,fn,false);
-                    var tmpEvents = _this._events || [];
-                    tmpEvents.push({
-                        event:event,
-                        fn:fn
-                    });
-                }
+                _this.addEventListener(event,fn,false);
+                console.log(event,fn);
+                var tmpEvents = _this._events || [];
+                tmpEvents.push({
+                    event:event,
+                    fn:fn
+                });
             }
         })
         return this;
