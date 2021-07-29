@@ -33,7 +33,6 @@ function _bind(obj){
         [].forEach.call(events,function(event){
             if(event.trim()){
                 _this.addEventListener(event,fn,false);
-                console.log(event,fn);
                 var tmpEvents = _this._events || [];
                 tmpEvents.push({
                     event:event,
