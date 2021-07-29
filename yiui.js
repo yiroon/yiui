@@ -25,19 +25,24 @@ function extend(){
 /* 添加DOM属性 */
 function _bind(obj){
     var isdom = typeof obj.nodeType != 'undefined';
-
+    var customEvents = ['longpress','appear'];
     /*绑定事件*/
     obj.on = function(ev,fn){
         var events = ev.split(' ');
         var _this = this;
         [].forEach.call(events,function(event){
             if(event.trim()){
+                //console.log(event,fn);
+                if(customEvents.indexOf(event)> -1){
+                    _this[event](fn);
+                }else{
                 _this.addEventListener(event,fn,false);
                 var tmpEvents = _this._events || [];
                 tmpEvents.push({
                     event:event,
                     fn:fn
                 });
+            }
             }
         })
         return this;
