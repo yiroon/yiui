@@ -173,7 +173,7 @@ function _bind(obj){
 
     /* 
     设置过渡时间 transition
-    obj.setAniTimer(对象||duration,动画完成后function)
+    obj.setAniTimer(对象||duration,动画完成后function),
     */
     obj.setAniTimer = function(param,fn){
         var duration = typeof param == 'object' ? (param.duration||300) : param;
@@ -273,7 +273,10 @@ function _bind(obj){
                 //回调
            }
         }
+        begin:function(){}
+        move:function(){}
     });
+    dom.stopDrag = true;//停止拖动
     */
     obj.setDrag = function(opts){
         opts = opts || {};
@@ -291,8 +294,9 @@ function _bind(obj){
         var mouseEvent = null;
         
         function begin(e){
+            if(obj.stopDrag){return;}
             var ev = e.touches ? e.touches[0] : e;
-            if(ev.button!=0){return;}
+            if(ev.button!=0 && ev.button != undefined){return;}
             mouseEvent = ev;
             var translate = obj.getTranslate();
             isdrag = true;
@@ -301,7 +305,7 @@ function _bind(obj){
             oldX = translate[0];
             oldY = translate[1];
             if(typeof opts.begin == 'function'){
-                opts.begin.call(obj);
+                opts.begin.call(obj,{y:startX,x:startY},e);
             }
             yiui.stop(e);
         }
