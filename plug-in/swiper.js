@@ -163,6 +163,7 @@ function swiper(opts){
     vals.y = 0-( (length/rows -1 ) * (el.offsetHeight  + gap) );
 
     slide.setDrag({
+        touchAction:'auto',
         allow:opts.vertical ? 'y' : 'x',
         max:opts.loop ? null : (opts.vertical ? {y:0} :{x:0}),
         min:opts.loop ? null : vals,
