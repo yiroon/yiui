@@ -290,7 +290,7 @@ function _bind(obj){
         var isdrag = false;
         var parent = typeof opts.range == 'boolean' ? $(obj.parentNode) : opts.range;
         var allow = opts.allow ? opts.allow : 'xy';/* 可拖动的方向,x,y,默认全部xy */
-        obj.style.touchAction = 'none';/*防止触发页面拖动事件*/
+        obj.style.touchAction = opts.touchAction || 'none';/*防止触发页面拖动事件*/
         var mouseEvent = null;
         
         function begin(e){
