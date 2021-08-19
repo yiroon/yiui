@@ -1,4 +1,10 @@
-(function sequence(){
+/*
+使用方法
+<div class="hv-image-play" style="width:64px;height:64px;" style="background-size:100%(设置宽度100%就会纵向换帧，高度100%横向换帧);" keyframes="图片地址"></div>
+<div class="hv-image-play" fps="10(帧率)" loop="true(循环播放)" autoplay(自动播放) style="width:54px;height:80px;background-size: auto 100%;background-position-y: 0px(设置背景的位置);" keyframes="图片地址"></div>
+*/
+
+(function(){
     function _playAni(opts,noloop){
         var reverse = opts.reverse;
         var isX = opts.x;
