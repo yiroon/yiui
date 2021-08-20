@@ -14,17 +14,19 @@
         var fps = opts.fps || 40;
         var speed = 1000 / parseFloat(fps);
 
+
         function _play(){
             var offsetY =  isX ? 0 : 0 - opts.index * opts.step;
             var offsetX = isX ? 0 - opts.index * opts.step : 0;
             if(isX){
                 el.style.backgroundPositionX = offsetX + 'px ';
             }else{
+                
                 el.style.backgroundPositionY = offsetY + 'px ';
             }
 
-
             if( (opts.index < opts.count - (opts.loop?0:1)  && !reverse) ||  (opts.index > 0 && reverse ) ){
+                
                 opts.index = opts.index + (reverse ? -1 : 1) ;
                 opts.timer = setTimeout(_play, speed);
             }else{
@@ -35,6 +37,7 @@
                 opts.reverse = false;
             }
         }
+
         _play();
     }
 
@@ -42,6 +45,7 @@
         if(!opts.autoplay){
             opts.el.addEventListener('mouseover',function(){
                 opts.index = 0;
+                console.log(opts);
                 _playAni(opts);
             });
             opts.el.addEventListener('mouseout',function(){
@@ -49,6 +53,7 @@
                 _playAni(opts,true);
             });
         }else{
+            console.log(opts);
             _playAni(opts);
         }
     }
@@ -78,29 +83,33 @@
                     loop:loop,
                     fps:fps,
                     autoplay:autoplay,
+                    count:1,
                 };
 
-                if(bgSize[0] == '100%' || imgWidth == bgSize[0]){ //纵向一列
+                var bgWidth = bgSize[0] ? bgSize[0].replace('px','') : '' || '';
+                var bgHeight = bgSize[1] ? bgSize[1].replace('px','') : '' || '';
+
+
+                if(bgSize[0] == '100%' || bgWidth==boxWidth){ //纵向一列
                     opts.step = boxHeight;
                     opts.count = boxWidth / imgWidth * imgHeight / boxHeight;
                 }
 
-                if(bgSize[1] == '100%' || imgHeight == bgSize[1]){//横向一行
+                if(bgSize[1] == '100%' || bgHeight==boxHeight){//横向一行
                     opts.step = boxWidth;
                     opts.x = true;
                     opts.count = boxHeight / imgHeight * imgWidth / boxWidth;
-
                 }
 
-                if(bgSize[0].indexOf('%')>-1 && bgSize[0].replace('%','') != "100"){
+                if(bgWidth.indexOf('%')>-1 && bgWidth.replace('%','') != "100" || parseInt(bgWidth) > boxWidth ){
                     opts.step = boxWidth;
                     opts.x = true;
-                    opts.count = parseInt(bgSize[0].replace('%','')) / 100;
+                    opts.count = parseInt(bgWidth.replace('%','')) / 100;
                 }
 
-                if(bgSize[1] != undefined && bgSize[1].indexOf('%')>-1 && bgSize[1].replace('%','') != "100"){
+                if(bgHeight != undefined && bgHeight.indexOf('%')>-1 && bgHeight.replace('%','') != "100" || parseInt(bgHeight) > boxHeight){
                     opts.step = boxHeight;
-                    opts.count = parseInt(bgSize[1].replace('%','')) / 100;
+                    opts.count = parseInt(bgHeight.replace('%','')) / 100;
                 }
 
                 _setTrigger(opts);
