@@ -45,7 +45,6 @@
         if(!opts.autoplay){
             opts.el.addEventListener('mouseover',function(){
                 opts.index = 0;
-                console.log(opts);
                 _playAni(opts);
             });
             opts.el.addEventListener('mouseout',function(){
@@ -53,7 +52,6 @@
                 _playAni(opts,true);
             });
         }else{
-            console.log(opts);
             _playAni(opts);
         }
     }
