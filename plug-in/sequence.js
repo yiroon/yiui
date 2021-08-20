@@ -21,12 +21,12 @@
             if(isX){
                 el.style.backgroundPositionX = offsetX + 'px ';
             }else{
-                
+
                 el.style.backgroundPositionY = offsetY + 'px ';
             }
 
             if( (opts.index < opts.count - (opts.loop?0:1)  && !reverse) ||  (opts.index > 0 && reverse ) ){
-                
+
                 opts.index = opts.index + (reverse ? -1 : 1) ;
                 opts.timer = setTimeout(_play, speed);
             }else{
@@ -87,24 +87,20 @@
                 var bgWidth = bgSize[0] ? bgSize[0].replace('px','') : '' || '';
                 var bgHeight = bgSize[1] ? bgSize[1].replace('px','') : '' || '';
 
-
-                if(bgSize[0] == '100%' || bgWidth==boxWidth){ //纵向一列
+                if(bgWidth == '100%' || bgWidth==boxWidth){ //纵向一列
                     opts.step = boxHeight;
                     opts.count = boxWidth / imgWidth * imgHeight / boxHeight;
-                }
-
-                if(bgSize[1] == '100%' || bgHeight==boxHeight){//横向一行
+                }else
+                if(bgHeight == '100%' || bgHeight==boxHeight){//横向一行
                     opts.step = boxWidth;
                     opts.x = true;
                     opts.count = boxHeight / imgHeight * imgWidth / boxWidth;
-                }
-
+                }else
                 if(bgWidth.indexOf('%')>-1 && bgWidth.replace('%','') != "100" || parseInt(bgWidth) > boxWidth ){
                     opts.step = boxWidth;
                     opts.x = true;
                     opts.count = parseInt(bgWidth.replace('%','')) / 100;
-                }
-
+                }else
                 if(bgHeight != undefined && bgHeight.indexOf('%')>-1 && bgHeight.replace('%','') != "100" || parseInt(bgHeight) > boxHeight){
                     opts.step = boxHeight;
                     opts.count = parseInt(bgHeight.replace('%','')) / 100;
