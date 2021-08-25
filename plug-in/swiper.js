@@ -197,7 +197,7 @@ function swiper(opts){
                 opts.move.call(_this);
             }
         },
-        before:function(){
+        begin:function(){
            if(typeof opts.start == 'function'){
                opts.start.call(_this);
            }
