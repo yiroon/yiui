@@ -9,8 +9,9 @@ new swiper({
     loop:false,//无缝无限循环滚动
     vertical:false,//垂直方式
     reverse:false,//反方向滚动，自动播放时
-    after:function(){}//切换后
-    move:function(){}//拖动中
+    after:function(){},//切换后
+    move:function(){},//拖动中
+    start:function(){},//按下时
 })
 【依赖yiui2.js】
 */
@@ -195,6 +196,11 @@ function swiper(opts){
             if(typeof opts.move == 'function'){
                 opts.move.call(_this);
             }
+        },
+        before:function(){
+           if(typeof opts.start == 'function'){
+               opts.start.call(_this);
+           }
         }
     });
 
