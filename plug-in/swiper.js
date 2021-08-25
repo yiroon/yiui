@@ -11,7 +11,7 @@ new swiper({
     reverse:false,//反方向滚动，自动播放时
     after:function(){},//切换后
     move:function(){},//拖动中
-    start:function(){},//按下时
+    begin:function(){},//按下时
 })
 【依赖yiui2.js】
 */
@@ -198,8 +198,8 @@ function swiper(opts){
             }
         },
         begin:function(){
-           if(typeof opts.start == 'function'){
-               opts.start.call(_this);
+           if(typeof opts.begin == 'function'){
+               opts.begin.call(_this);
            }
         }
     });
