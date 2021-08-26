@@ -472,17 +472,14 @@ function _bind(obj){
         return this;
     }
 
-    /* 滚轮事件 isDown(是否向下滚动，true时不返回ev) */ 
-    obj.wheel = function(fn,isDown){
+    /* 滚轮事件 */ 
+    obj.wheel = function(fn){
         var _this = this;
         function _fn(ev){
-            var returnVal = ev;
-            if(isDown){
-                var e = ev||event;
-                returnVal = e.wheelDelta ? down=e.wheelDelta<0 : down=e.detail>0;
-                
-            }
-            fn.call(_this,returnVal);
+            var e = ev||event;
+            var isdown = e.wheelDelta ? down=e.wheelDelta<0 : down=e.detail>0;
+            ev.isDown = isdown;
+            fn.call(_this,ev);
         }
         
         window.navigator.userAgent.indexOf('Firefox')!=-1 ? this.on('DOMMouseScroll',_fn,false) : this.on('mousewheel',_fn);
