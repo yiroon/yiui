@@ -24,8 +24,10 @@ function extend(){
 
 /* 添加DOM属性 */
 function _bind(obj){
+    if(obj._binded === true){return obj;}
+
     var isdom = typeof obj.nodeType != 'undefined';
-    var customEvents = ['longpress','appear'];
+    var customEvents = ['longpress','appear','wheel'];
     /*绑定事件*/
     obj.on = function(ev,fn){
         var events = ev.split(' ');
@@ -240,7 +242,7 @@ function _bind(obj){
         //console.log(this)
         var dom = typeof param == 'object' ? param : obj.querySelector(param);
         if(dom == null){return null;}
-        _bind(dom)
+        _bind(dom);
         return dom;
     }
 
@@ -443,7 +445,6 @@ function _bind(obj){
                 
             })
         }
-
         return this;
     }
 
@@ -467,8 +468,33 @@ function _bind(obj){
                 _this.un('mousedown',md);
                 _this.un('mouseup',mu);
             }
-        })
+        });
         return this;
+    }
+
+    /* 滚轮事件 isDown(是否向下滚动，true时不返回ev) */ 
+    obj.wheel = function(fn,isDown){
+        var _this = this;
+        function _fn(ev){
+            var returnVal = ev;
+            if(isDown){
+                var e = ev||event;
+                returnVal = e.wheelDelta ? down=e.wheelDelta<0 : down=e.detail>0;
+                
+            }
+            fn.call(_this,returnVal);
+        }
+        
+        window.navigator.userAgent.indexOf('Firefox')!=-1 ? this.on('DOMMouseScroll',_fn,false) : this.on('mousewheel',_fn);
+        this._un = this._un ? this.un : [];
+        this._un.push({
+            event:'wheel',
+            fn:_fn,
+            do:function(){
+                _this.removeEventListener('DOMMouseScroll',_fn);
+                _this.removeEventListener('mousewheel',_fn);
+            }
+        });
     }
 
     /* 元素出现事件 */
@@ -546,7 +572,7 @@ function _bind(obj){
         })
         return this;
     }
-    
+    obj._binded = true;//绑定过
 }
 
 
@@ -693,5 +719,3 @@ $(function(){
     });
     
 });
-
-
