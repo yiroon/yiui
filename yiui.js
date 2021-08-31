@@ -626,6 +626,18 @@ function arrToUrlParam (param,idx, key, encode){
     return paramStr;
 }
 
+/* 锁定滚动条 */
+function lockScroll(){
+	var docEle = document.documentElement;
+	docEle.style.marginRight = window.innerWidth - docEle.offsetWidth + 'px';
+	docEle.style.overflow = 'hidden';
+}
+
+/* 解锁滚动条 */
+function unLockScroll(){
+	document.documentElement.removeAttribute('style');
+}
+
 /* get */
 $.get = function(url,fn,dataType){
     var xhr = new XMLHttpRequest();
