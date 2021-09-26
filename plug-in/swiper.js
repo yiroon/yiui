@@ -162,6 +162,20 @@ function swiper(opts){
 
     vals.x = 0-( (length/cols -1 ) * (el.offsetWidth  + gap) );
     vals.y = 0-( (length/rows -1 ) * (el.offsetHeight  + gap) );
+ 
+    var isDraging = false;
+ 
+    slide.on('dragstart',function(e){
+       isDraging = true;
+       e.preventDefault();
+    });
+ 
+    slide.on('click',function(e){
+       if(isDraging){
+          e.preventDefault();
+       }
+       isDraging = false;
+    });
 
     slide.setDrag({
         touchAction:'pan-y',
