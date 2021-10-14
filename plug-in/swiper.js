@@ -34,6 +34,7 @@ function swiper(opts){
     var max = 0;
     var vals = {};
     var startX = 0,startY = 0;
+    var playTimer = null;
 
     function computeIndex(index){
         index  = index < 0 ? reallen+index : index;
@@ -41,13 +42,13 @@ function swiper(opts){
         var num = opts.vertical ? rows : cols;
         max = reallen-num;
         var mm = reallen - 1;
-        
+
         if(!opts.loop){
             index = index < min ? max : index;
             index = index > max ? min : index;
         }
         _this.indexs = [];
-        
+
         for(var i=index; i < index+num; i++){
             var v = i >= reallen ? i - reallen : i;
             if(v<=mm){_this.indexs.push(v);}
@@ -56,6 +57,7 @@ function swiper(opts){
     }
 
     this.slideTo = function(index){
+        clearTimeout(playTimer);
         computeIndex(index);
         var toX = opts.vertical ? 0 : 0  - itemWidth * _this.index - gap*_this.index + startX;
         var toY = opts.vertical ? 0  - itemHeight * _this.index - gap*_this.index + startY : 0;
@@ -67,13 +69,14 @@ function swiper(opts){
             }).setTranslate(toX,toY);
         }
 
+
         if(opts.reverse && _this.index==reallen-1){
             slide.setTranslate(startX*2,startY*2);
         }
 
-        setTimeout(aniTo,0);
-        
-        
+        playTimer = setTimeout(aniTo,0);
+
+
         if(opts.loop && index >= reallen){index = index - reallen;_this.index = index;}
         if(typeof opts.after == 'function'){
             opts.after.call(_this);
@@ -100,6 +103,7 @@ function swiper(opts){
         });
         startX = opts.vertical ? 0 : 0 - (length/cols) * (el.offsetWidth + gap) ;
         startY = opts.vertical ? 0 - (length/rows) * (el.offsetHeight + gap) : 0 ;
+
         slide.setTranslate(startX,startY);
     }
 
@@ -117,10 +121,12 @@ function swiper(opts){
             slide.style.flexDirection = 'column';
         }
 
+
+
         itemWidth = (el.offsetWidth - gap * (cols - 1)) / cols;
         itemHeight = (el.offsetHeight - gap * (rows - 1)) / rows;
         var items  =  el.$$(slideEl+'>*');
-        
+
         items.each(function(){
             this.style.width = itemWidth + 'px';
             this.style.height = itemHeight + 'px';
@@ -128,10 +134,15 @@ function swiper(opts){
             this.style.marginBottom = gap+'px';
             this.style.flexShrink = 0;
         });
+
         vals.x = 0-( (length/cols -1 ) * (el.offsetWidth  + gap) );
         vals.y = 0-( (length/rows -1 ) * (el.offsetHeight  + gap) );
+
+        startX = opts.vertical ? 0 : 0 - (reallen/cols) * (el.offsetWidth + gap) ;
+        startY = opts.vertical ? 0 - (reallen/rows) * (el.offsetHeight + gap) : 0 ;
+
         _this.slideTo(_this.index);
-        
+
     }
 
     this.autoPlay = function(){
@@ -142,7 +153,7 @@ function swiper(opts){
                 _this.index++;
             }
             _this.slideTo(_this.index);
-            
+
         },opts.speed||3000);
     }
 
@@ -162,19 +173,19 @@ function swiper(opts){
 
     vals.x = 0-( (length/cols -1 ) * (el.offsetWidth  + gap) );
     vals.y = 0-( (length/rows -1 ) * (el.offsetHeight  + gap) );
- 
+
     var isDraging = false;
- 
+
     slide.on('dragstart',function(e){
-       isDraging = true;
-       e.preventDefault();
+    isDraging = true;
+    e.preventDefault();
     });
- 
+
     slide.on('click',function(e){
-       if(isDraging){
-          e.preventDefault();
-       }
-       isDraging = false;
+    if(isDraging){
+        e.preventDefault();
+    }
+    isDraging = false;
     });
 
     slide.setDrag({
@@ -200,10 +211,10 @@ function swiper(opts){
                     if(d[0] > startX ){p.setX(d[0]+startX);}
                     if(Math.abs(d[0]) >= Math.abs(startX*2)  ){p.setX(d[0]-startX);}
                 }
-                
+
                 d = this.getTranslate();
             }
-            
+
 
             var index = opts.vertical ? Math.round(((0-d[1]) / (itemHeight+gap) ).toFixed(2)) : Math.round(((0-d[0]) / (itemWidth+gap) ).toFixed(2));
             computeIndex(index,true);
@@ -212,9 +223,9 @@ function swiper(opts){
             }
         },
         begin:function(){
-           if(typeof opts.begin == 'function'){
-               opts.begin.call(_this);
-           }
+        if(typeof opts.begin == 'function'){
+            opts.begin.call(_this);
+        }
         }
     });
 
