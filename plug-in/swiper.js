@@ -59,6 +59,7 @@ function swiper(opts){
     this.slideTo = function(index){
         clearTimeout(playTimer);
         computeIndex(index);
+        
         var toX = opts.vertical ? 0 : 0  - itemWidth * _this.index - gap*_this.index + startX;
         var toY = opts.vertical ? 0  - itemHeight * _this.index - gap*_this.index + startY : 0;
 
@@ -78,6 +79,12 @@ function swiper(opts){
 
 
         if(opts.loop && index >= reallen){index = index - reallen;_this.index = index;}
+        if(opts.loop){
+            _this.realIndex = index + reallen;
+            _this.el = slide.$$('*')[_this.index];
+            _this.realLen = slide.$$('*').length;
+        }
+        
         if(typeof opts.after == 'function'){
             opts.after.call(_this);
         }
@@ -138,8 +145,10 @@ function swiper(opts){
         vals.x = 0-( (length/cols -1 ) * (el.offsetWidth  + gap) );
         vals.y = 0-( (length/rows -1 ) * (el.offsetHeight  + gap) );
 
-        startX = opts.vertical ? 0 : 0 - (reallen/cols) * (el.offsetWidth + gap) ;
-        startY = opts.vertical ? 0 - (reallen/rows) * (el.offsetHeight + gap) : 0 ;
+        var setW = el.offsetWidth * (opts.loop ? 1  : this_.index);
+        var setH = el.offsetHeight * (opts.loop ? 1  : this_.index);
+        startX = opts.vertical ? 0 : 0 - (reallen/cols) * (setW  + gap) ;
+        startY = opts.vertical ? 0 - (reallen/rows) * (setH * _this.index + gap) : 0 ;
 
         _this.slideTo(_this.index);
 
@@ -159,7 +168,6 @@ function swiper(opts){
 
     if(opts.autoPlay){
         this.autoPlay();
-        //console.log('AutoPlay');
     }
 
     if(opts.hoverPause && opts.autoPlay){
