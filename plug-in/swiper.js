@@ -88,6 +88,10 @@ function swiper(opts){
         if(typeof opts.after == 'function'){
             opts.after.call(_this);
         }
+
+        if(opts.hoverPause && opts.autoPlay){
+            _this.autoPlay();
+        }
     }
 
     /* 循环模式克隆原节点 */
@@ -155,7 +159,8 @@ function swiper(opts){
     }
 
     this.autoPlay = function(){
-        _this.timer = setInterval(function(){
+        clearTimeout(_this.timer);
+        _this.timer = setTimeout(function(){
             if(opts.reverse){
                 _this.index--;
             }else{
@@ -172,7 +177,7 @@ function swiper(opts){
 
     if(opts.hoverPause && opts.autoPlay){
         el.on('mouseover',function(){
-            clearInterval(_this.timer);
+            clearTimeout(_this.timer);
         });
         el.on('mouseout',function(){
             _this.autoPlay();
