@@ -118,7 +118,8 @@ $shadow:(
     &-left{border-left:1px solid $border-color;}
     &-right{border-right:1px solid $border-color;}
     &-top{border-top:1px solid $border-color;}
-    &-bottom{border-bottom:1px solid $border-color;} 
+    &-bottom{border-bottom:1px solid $border-color;}
+    &-radius{border-radius: 1rem;}
     @include while('radius','border-radius',0,30,0.1,'rem');
 }
 
