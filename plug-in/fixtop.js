@@ -13,13 +13,14 @@ $(function(){
         clone.removeAttribute('fixtop');
         var attr = this.getAttribute('fixtop');
         var config = {};
+        var isFix = false;
         if(attr){eval('config = '+attr);}
         
         var parent = config.parent || this.parentNode;
         var offset = config.offset || 0;
     
         function scrolling(){
-           var mypos = _this.getBoundingClientRect(); 
+           var mypos = (isFix ? clone : _this).getBoundingClientRect(); 
            var ptpos = parent.getBoundingClientRect();
            var ptBottom = ptpos.top+ptpos.height - mypos.height - offset;
 
@@ -30,9 +31,9 @@ $(function(){
                 }
            }
            
-           
            if(mypos.top < offset){
-                $(clone).css({
+                isFix = true;
+                _this.css({
                     position:'fixed',
                     top:ptBottom > 0 ? 0 : ptBottom+'px',
                     left:mypos.left+'px',
@@ -41,11 +42,13 @@ $(function(){
                     width:mypos.width+'px'
                 });
                 if(config.css){
-                    $(clone).css(config.css);
+                    _this.css(config.css);
                 }
                _this.after(clone);
-               _this.css({visibility:'hidden'});
+               $(clone).css({visibility:'hidden'});
            }else if(typeof clone == 'object'){
+                isFix = false;
+               _this.setAttribute('style', clone.getAttribute('style') )
                $(clone).remove();
                _this.css({visibility:'visible'});
            }
