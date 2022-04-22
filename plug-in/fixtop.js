@@ -16,26 +16,26 @@ $(function(){
         var isFix = false;
         if(attr){eval('config = '+attr);}
         
-        var parent = config.parent || this.parentNode;
         var offset = config.offset || 0;
     
+        console.log(config)
         function scrolling(){
            var mypos = (isFix ? clone : _this).getBoundingClientRect(); 
-           var ptpos = parent.getBoundingClientRect();
-           var ptBottom = ptpos.top+ptpos.height - mypos.height - offset;
-
+           var parentPos = (config.parent || (isFix ? clone : _this).parentNode).getBoundingClientRect();
+           var parentBottom = parentPos.top+parentPos.height - mypos.height - offset;
            if(config.maxOffset){
                 var mm = mypos.top > 0 || Math.abs(mypos.top) < config.maxOffset;
                 if(!mm){
-                    ptBottom = config.maxOffset - Math.abs(mypos.top);
+                    parentBottom = config.maxOffset - Math.abs(mypos.top);
                 }
            }
            
            if(mypos.top < offset){
                 isFix = true;
+
                 _this.css({
                     position:'fixed',
-                    top:ptBottom > 0 ? 0 : ptBottom+'px',
+                    top:parentBottom > 0 ? 0 : (config.parent ? parentBottom+'px' : 0),
                     left:mypos.left+'px',
                     marginLeft:0,
                     marginTop:offset+'px',
@@ -55,4 +55,5 @@ $(function(){
         }
         window.addEventListener('scroll',scrolling)
     });
+    $(window).trigger('scroll');
 })
