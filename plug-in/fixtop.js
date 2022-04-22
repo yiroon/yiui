@@ -53,7 +53,7 @@ $(function(){
                _this.css({visibility:'visible'});
            }
         }
-        window.addEventListener('scroll',scrolling)
+        window.addEventListener('scroll',scrolling);
+        scrolling();
     });
-    $(window).trigger('scroll');
 })
