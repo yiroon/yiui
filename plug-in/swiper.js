@@ -19,13 +19,13 @@ new swiper({
 function swiper(opts) {
     var el = $(opts.el);
     var slideEl = opts.slide || '.slide-slide';
-    var slide = el.$(slideEl);
+    var slide = el.$(slideEl) || $(el.children[0]);
     this.index = 0;
     var _this = this;
     var cols = opts.cols || 1;
     var rows = opts.rows || 1;
     var gap = opts.gap || 0;
-    var length = el.$$(slideEl + '>*').length;
+    var length = slide.children.length;
     var reallen = length;
     this.length = reallen;
     var itemWidth = (el.offsetWidth - gap * (cols - 1)) / cols;
@@ -97,8 +97,8 @@ function swiper(opts) {
 
     /* 循环模式克隆原节点 */
     function loopClone() {
-        var items = el.$$(slideEl + '>*');
-        var clones = el.$$(slideEl + '>.slide-clone');
+        var items = el.$$(':scope>*>*');
+        var clones = el.$$(':scope>*>*.slide-clone');
         var firstItem = items[0];
         clones.each(function () {
             this.remove();
@@ -121,7 +121,7 @@ function swiper(opts) {
 
     if (opts.loop) {
         loopClone();
-        length = el.$$(slideEl + '>*').length;
+        length = el.$$(':scope>*>*').length;
     }
 
     function initDoms() {
@@ -137,7 +137,7 @@ function swiper(opts) {
 
         itemWidth = (el.offsetWidth - gap * (cols - 1)) / cols;
         itemHeight = (el.offsetHeight - gap * (rows - 1)) / rows;
-        var items = el.$$(slideEl + '>*');
+        var items = el.$$(':scope>*>*');
 
         items.each(function () {
             this.style.width = itemWidth + 'px';
