@@ -1,5 +1,23 @@
+/*
+【使用示例】
+<h2>第一组</h2>
+<div picture-group >
+    <img width="200" src="http://jdtek.hk/images/20220412/a92a8ec9543daaba6d56323dd1416d0f.jpg" picture-view="http://jdtek.hk/images/20220412/a92a8ec9543daaba6d56323dd1416d0f.jpg" >
+    <img width="200" src="https://cdn.pixabay.com/photo/2022/05/05/01/11/cormorant-7175037__340.jpg" picture-view="https://cdn.pixabay.com/photo/2022/05/05/01/11/cormorant-7175037_960_720.jpg" >
+    <img width="200" src="https://cdn.pixabay.com/photo/2022/05/03/20/12/prague-7172597__340.jpg" picture-view="https://cdn.pixabay.com/photo/2022/05/03/20/12/prague-7172597_960_720.jpg" >
+    <img width="200" src="https://cdn.pixabay.com/photo/2022/05/04/02/29/calligraphy-7173006_960_720.jpg" picture-view="https://cdn.pixabay.com/photo/2022/05/04/02/29/calligraphy-7173006_960_720.jpg" >
+</div>
+
+<h2>第二组</h2>
+<div picture-group >
+    <img width="200" src="https://cdn.pixabay.com/photo/2020/02/25/09/57/road-4878453__340.jpg" picture-view="https://cdn.pixabay.com/photo/2020/02/25/09/57/road-4878453_960_720.jpg" >
+    <img width="200" src="https://cdn.pixabay.com/photo/2022/05/01/10/49/flower-7167287__340.jpg" picture-view="https://cdn.pixabay.com/photo/2022/05/01/10/49/flower-7167287_960_720.jpg" >
+    <img width="200" src="https://cdn.pixabay.com/photo/2022/04/23/20/51/nature-7152461__340.jpg" picture-view="https://cdn.pixabay.com/photo/2022/04/23/20/51/nature-7152461_960_720.jpg" >
+    <img width="200" src="https://cdn.pixabay.com/photo/2021/10/28/14/32/jeans-6749852__340.jpg" picture-view="https://cdn.pixabay.com/photo/2021/10/28/14/32/jeans-6749852_960_720.jpg" >
+</div>
+*/
 function yiuiImageView(){
-    var globals = {slideAllowLeft:false,slideAllowRight:false};
+    var globals = {slideAllowLeft:false,slideAllowRight:false,slideMoving:false,dragDowing:false};
 
     function toMatrix(args) {
         var list = [];
@@ -90,7 +108,7 @@ function yiuiImageView(){
             if(x > maxX){x = maxX;}
             if(y < minY){y = minY;}
             if(y > maxY){y = maxY;}
-            return {x,y};
+            return {x:x,y:y};
         }
 
         var calcTranslate = function(x,y,transition){
@@ -138,20 +156,21 @@ function yiuiImageView(){
                 var docWidth = document.documentElement.clientWidth;
                 var minX = docWidth < scaleWidth ?  Math.round(docWidth - scaleWidth - pc.left) : 0;
                 var maxX = docWidth < scaleWidth ? Math.round(0 - pc.left) : Math.round((opts.el.offsetWidth - scaleWidth)/2);
-                console.log(store.translateX,minX);
-                if(x > minX+1 && x < maxX-1){stopPropagation(e);}
-                globals.slideAllowRight = x <= minX+1;
-                globals.slideAllowLeft = x >= maxX-1;
+                if(x > minX+1 && x < maxX-1){
+                    stopPropagation(e);
+                }
+                globals.slideAllowRight = x <= minX + 1;
+                globals.slideAllowLeft = x >= maxX - 1;
             }
         }
 
         var start = function(e){
             var ev = e.touches ? e.touches[0] : e;
             stop();
-            stopParentDrag(e);
             store.originScale = store.scale || 1;
             store.startX = ev.screenX;
             store.startY = ev.screenY;
+            stopParentDrag(e);
             store.startTime = +new Date();
             store.x = store.translateX;
             store.y = store.translateY;
@@ -165,6 +184,7 @@ function yiuiImageView(){
         
         var move = function(e){
             if(store.startX === null){return;}
+            if(globals.slideMoving){return;}
             e.preventDefault();
             opts.el.style.cursor = 'grabbing';
             var ev = e.touches ? e.touches[0] : e;
@@ -217,7 +237,8 @@ function yiuiImageView(){
 
                 //如果状态为未缩放，并向下拖动
                 if(store.scale == 1){
-                    if(offsetY > 5){
+                    if(offsetY > 20){
+                        globals.dragDowing = true;
                         store.isDragDown = true;//记录为向下拖动
                         store.closeValue = 1 - offsetY / document.documentElement.clientHeight;
                         var parentWidth = parent.offsetWidth;
@@ -272,19 +293,19 @@ function yiuiImageView(){
             durationX = Math.abs(translate.x - x.current) / speedX;
             durationY = Math.abs(translate.y - x.current) / speedY;
             var duration = Math.min(durationX,durationY);
-            if(duration < 300){duration =300;}
+            if(duration < 100){duration = 100;}
 
             return {
                 x:translate.x,
                 y:translate.y,
-                duration,
+                duration:duration,
                 bezier: 'cubic-bezier(.17, .89, .45, 1)',
             };
         }
 
         var end = function(){
             opts.el.style.cursor = 'grab';
-            store.startX = store.startX  = null;
+
             delete store.startX2;
             delete store.startY2;
             clearTimeout(globals.mouseUpTimer);
@@ -308,25 +329,27 @@ function yiuiImageView(){
                 var absDeltaY = Math.abs(store.translateY - store.momentumStartY);
                 var duration = +new Date() - store.startTime;
 
+
                 // 启动惯性滑动
-                if (!store.isDragDown && duration < momentumTimeThreshold && (absDeltaX > store.momentumThreshold || absDeltaY> store.momentumThreshold)  ) {
+                if (!globals.slideMoving && !store.isDragDown && duration < momentumTimeThreshold && (absDeltaX > store.momentumThreshold || absDeltaY> store.momentumThreshold)  ) {
                     var res = momentum({current:store.translateX,start:store.momentumStartX},{current:store.translateY,start:store.momentumStartY}, duration);
                     store.translateX = res.x;
                     store.translateY = res.y;
                     store.bezier = 'ease-out'; // res.bezier;
                     opts.el.style.transition = 'all '+res.duration+'ms';
                     setTranslate(opts.el,store.translateX,store.translateY);
-                }else{
+                }else if(!globals.slideMoving){
                     var translate = calcPoint(store.translateX,store.translateY);
                     opts.el.style.transition = 'all 0.3s';
                     setTranslate(opts.el,translate.x,translate.y,store.scale);
-                    opts.box.style.transition = 'all 0.3s';
-                    opts.box.style.backgroundColor = 'rgba(0,0,0,1)';
+                    opts.mask.style.transition = 'all 0.3s';
+                    opts.mask.style.backgroundColor = 'rgba(0,0,0,1)';
                 }
             }
-
+            store.startX = store.startY  = null;
             store.closeValue = null;
             store.isDragDown = false;
+            globals.dragDowing = false;
         }
 
         var autoScale = function(e){
@@ -371,7 +394,7 @@ function yiuiImageView(){
         opts.box.addEventListener('wheel',wheel);
         opts.box.addEventListener('dblclick',autoScale);
 
-        return {destory};
+        return {destory:destory};
     }
 
     function zoom(opts){
@@ -429,75 +452,35 @@ function yiuiImageView(){
         document.documentElement.removeAttribute('style');
     }
 
-    // function view(src){
-    //     var picbox = document.createElement('div');
-    //     picbox.setAttribute('style','touch-action:none; display:flex;align-items:center;justify-content:center;background-size:contain;background-repeat:no-repeat;background-position:center center;width:100%;height:100%;position:fixed;left:0;top:0;background-color:rgba(0,0,0,0);z-index:9999;');
-    //     document.body.appendChild(picbox);
-    //     var imgbox = document.createElement('div');
-    //     picbox.appendChild(imgbox);
-    //     var pic = document.createElement('img');
-    //     pic.setAttribute('style','-webkit-user-drag:none;transform-origin:0 0;max-width:100%;max-height:100%;display:block;');
-    //     pic.src = src;
-    //     imgbox.appendChild(pic);
-    //     var _this = this;
-    //     picbox.style.transition = 'all 0.5s';
-    //     picbox.style.backgroundColor = 'rgba(0,0,0,1)';
-    //     pic.style.visibility = 'hidden';
-
-    //     var listenTimer = setInterval(function(){
-    //         if(pic.width > 0){
-    //             clearInterval(listenTimer);
-    //             zoom({from:_this,to:pic});
-    //         }
-    //     },0);
-
-    //     var drag = {};
-
-    //     var closePicBox = function(){
-    //         picbox.style.transition = 'all 0.5s';
-    //         picbox.style.backgroundColor = 'rgba(0,0,0,0)';
-    //         pic.style.transition = 'none';
-    //         drag.destory();
-    //         zoom({from:pic,to:_this,out:true,after:function(){picbox.parentNode.removeChild(picbox);}});
-    //         unLockScroll();
-    //     }
-
-    //     drag = setDrag({el:pic,box:picbox,clickCloseTime:310,closing:closePicBox});
-
-    //     picbox.addEventListener('click',function(){
-    //         clearTimeout(globals.mouseTimer);
-    //         globals.mouseTimer = setTimeout(function(){
-    //             if(!globals.mousemoving){
-    //                 closePicBox();
-    //             }
-    //         },300)
-            
-    //     })
-    //     lockScroll();
-    // }
-
     function initSlideList(group,initIndex){
         var slideList = document.createElement('ul');
         slideList.setAttribute('style','height:100%;margin:0;padding:0;display:flex;flex-wrap:no-wrap;');
 
         var lightbox = document.createElement('div');
         lightbox.setAttribute('style','touch-action:none; width:100%;height:100%;position:fixed;left:0;top:0;background-color:rgba(0,0,0,0);z-index:9999;');
-
-        lightbox.style.backgroundColor = 'rgba(0,0,0,1)';
         lightbox.appendChild(slideList);
+
+        var pages = document.createElement('ul');
+        pages.setAttribute('style','z-index:99999;width:100%;margin:0;padding:0;position:absolute;left:0;bottom:1rem;display:flex;align-items:center;justify-content:center;');
+
+        lightbox.appendChild(pages);
 
         lockScroll();
 
         var closePicBox = function(image,item){
+            lightbox.style.transition = 'all 0.5s';
+            lightbox.style.backgroundColor = 'rgba(0,0,0,0)';
             zoom({from:image,to:item,out:true,after:function(){
-                lightbox.style.transition = 'all 0.5s';
-                lightbox.style.backgroundColor = 'rgba(0,0,0,0)';
-                lightbox.parentNode.removeChild(lightbox);
+                (lightbox.parentNode || document.body).removeChild(lightbox);
             }});
             slideList.removeEventListener('touchstart',slideStart);
             document.removeEventListener('touchmove',slideMove);
             document.removeEventListener('touchend',slideEnd);
             document.removeEventListener('touchcancel',slideEnd);
+
+            slideList.removeEventListener('mousedown',slideStart);
+            document.removeEventListener('mousemove',slideMove);
+            document.removeEventListener('mouseup',slideEnd);
             unLockScroll();
         }
     
@@ -513,6 +496,10 @@ function yiuiImageView(){
             image.src = src;
             image.setAttribute('style','-webkit-user-drag:none;transform-origin:0 0;max-width:100%;max-height:100%;display:block;');
             imgbox.appendChild(image);
+
+            var pagenum = document.createElement('li');
+            pagenum.setAttribute('style','overflow:hidden;margin:0 0.3rem;width:5px;height:5px;border-radius:50%;background-color:rgb(128,128,128);');
+            pages.appendChild(pagenum);
             
             drag = setDrag({el:image,box:li,mask:lightbox,clickCloseTime:310,closing:closePicBox.bind(undefined,image,item)});
             li.addEventListener('click',function(){
@@ -557,6 +544,10 @@ function yiuiImageView(){
             slideStore.translateX = (-index / slideStore.length) * slideStore.getListWidth();
             slideList.style.transition = transition || 'none';
             setTranslate(slideList,slideStore.translateX,0);
+            [].forEach.call(pages.querySelectorAll('li'),function(item){
+                item.style.backgroundColor = 'rgb(128,128,128)';
+            })
+            pages.querySelectorAll('li')[index].style.backgroundColor = 'rgb(255,255,255)';
         }
         slideTo(initIndex);
         var slideStart = function(e){
@@ -576,8 +567,23 @@ function yiuiImageView(){
             var maxX = 0;
             if(slideStore.translateX < minX){slideStore.translateX = minX;}
             if(slideStore.translateX > maxX){slideStore.translateX = maxX;}
-            if(globals.slideAllowLeft && offsetX > 0){setTranslate(slideList,slideStore.translateX,0);}
-            if(globals.slideAllowRight && offsetX < 0){setTranslate(slideList,slideStore.translateX,0);}
+            var canMove =!globals.dragDowing && !slideStore.isCurrentScaling() || (
+                (globals.slideAllowLeft && offsetX > 0) || (globals.slideAllowRight && offsetX < 0)
+            )
+
+            if(canMove && Math.abs(offsetX) > 20 ){
+                setTranslate(slideList,slideStore.translateX,0);
+                globals.slideMoving = true;
+            }
+
+            if(Math.abs(offsetX) > 20){
+                globals.mousemoving = true;
+                clearTimeout(globals.mouseUpTimer);
+                globals.mouseUpTimer = setTimeout(function(){
+                    globals.mousemoving = false;
+                },310);
+            }
+
             e.preventDefault();
             
         }
@@ -605,6 +611,7 @@ function yiuiImageView(){
             slideStore.index = Math.abs(index);
             slideTo(slideStore.index,'all 0.3s');
 
+            globals.slideMoving = false;
             slideStore.startX = null;
             slideStore.currentX = null;
         }
@@ -616,30 +623,28 @@ function yiuiImageView(){
         document.addEventListener('touchend',slideEnd);
         document.addEventListener('touchcancel',slideEnd);
 
+        slideList.addEventListener('mousedown',slideStart);
+        document.addEventListener('mousemove',slideMove);
+        document.addEventListener('mouseup',slideEnd);
+
         return {
             getCurrentImage:function(){
                 return slideList.children[slideStore.index].querySelector('img');
-            }
+            },
+            mask:lightbox,
         }
-
-        // [].forEach.call(pictureGroups,function(group){
-        //     var pictures = group.querySelectorAll('[picture-view]');
-        //     [].forEach.call(pictures,function(item){
-        //         item.style.cursor = 'pointer';
-        //         var src = item.getAttribute('picture-view');
-        //         item.addEventListener('click', view.bind(item, src) )
-        //     });
-        // })
     }
 
 
     var pictureGroups = document.querySelectorAll('[picture-group]');
     [].forEach.call(pictureGroups,function(group){
         var pictures = group.querySelectorAll('[picture-view]');
-        pictures.forEach(function(item,index){
+        [].forEach.call(pictures,function(item,index){
             // item.style.cursor = 'pointer';
             item.addEventListener('click',function(){
                 var slideList  = initSlideList(group,index);
+                slideList.mask.style.transition = 'all 0.5s';
+                slideList.mask.style.backgroundColor = 'rgba(0,0,0,1)';
                 zoom({from:this,to:slideList.getCurrentImage() });
             })
         });
