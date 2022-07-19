@@ -72,6 +72,7 @@ function lazyLoadSrc(parent){
                 }
             }
 
+
             timer = setInterval(function(){
                 if( img.naturalWidth > 0 || img.width > 0){
                     img_resize();
@@ -89,15 +90,23 @@ function lazyLoadSrc(parent){
             _this.removeAttribute('lazy-src',null);
             _this.un('appear',imgLazySrc);
 
+            $(window).on('scroll',function(){
+                img_resize();
+            })
+
         }
+
+        
 
         var bgMode =  typeof this.getAttribute('bgmode') == 'string' ? true : false;
 
 
         function lazyBg(){
             var src = this.getAttribute('lazy-src');
+            var fit = this.getAttribute('fit') || 'cover';
             this.css({
                 backgroundImage:'url('+src+')',
+                backgroundSize:fit,
             });
             this.un('appear',lazyBg);
             this.removeAttribute('lazy-src');
