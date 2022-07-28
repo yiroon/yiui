@@ -1,6 +1,6 @@
 /*
 图片懒加载
-<div lazy-src="图片地址" fit="cover(默认)|contain|fill" bgmode> bgmode属性表示以background-image填充图片
+<div lazy-src="图片地址" props="向img传的属性" fit="cover(默认)|contain|fill" bgmode> bgmode属性表示以background-image填充图片
 【依赖yiui2.js】
 */
 function lazyLoadSrc(parent){
@@ -29,6 +29,16 @@ function lazyLoadSrc(parent){
                 maxHeight:'100%',
                 display:'none',
             });
+
+            var props = this.getAttribute('props');
+            if(props){
+                props = props.split(',');
+                props.forEach(function(attr){
+                    img.setAttribute(attr, _this.getAttribute(attr));
+                    _this.removeAttribute(attr);
+                });
+            }
+
             var timer = null;
 
             function img_resize(){
