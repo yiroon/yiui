@@ -9,6 +9,9 @@ function lazyLoadSrc(parent){
             var src = this.getAttribute('lazy-src');
             var fit = this.getAttribute('fit') || 'cover';
             var _this = this;
+
+            var BC = this.getBoundingClientRect();
+
             if(this.getStyle('position') == 'static'){
                 this.css({position:'relative'});
             }
@@ -42,9 +45,7 @@ function lazyLoadSrc(parent){
             var timer = null;
 
             function img_resize(){
-
                 $(img).css({display:'block'});
-
                 img.setAttribute('width',null);
                 img.setAttribute('height',null);
                 img.removeAttribute('width');
@@ -53,6 +54,16 @@ function lazyLoadSrc(parent){
                 var boxScale = imgbox.offsetWidth / imgbox.offsetHeight;
                 var imgScale = img.naturalWidth / img.naturalHeight;
 
+
+                if(BC.width == 0 || BC.height ==0){
+                    if(BC.width > 0 && BC.height == 0){
+                        _this.style.height = imgbox.offsetWidth / imgScale +'px';
+                    }
+                    if(BC.width == 0 && BC.height > 0){
+                        _this.style.width = imgbox.offsetHeight / imgScale +'px';
+                    }
+                }
+
                 if(fit=='cover'){
                     //console.log(img);
                     $(img).css({
@@ -60,7 +71,7 @@ function lazyLoadSrc(parent){
                         maxHeight:'none',
                     });
 
-                if(boxScale > imgScale){
+                    if(boxScale > imgScale){
                         $(img).css({width:'100%',height:imgbox.offsetWidth / imgScale / imgbox.offsetHeight*100 + '%' })
                     }else{
                         $(img).css({width:imgbox.offsetHeight * imgScale / imgbox.offsetWidth*100 + '%',height:'100%' })
@@ -82,7 +93,6 @@ function lazyLoadSrc(parent){
                 }
             }
 
-
             timer = setInterval(function(){
                 if( img.naturalWidth > 0 || img.width > 0){
                     img_resize();
@@ -100,7 +110,7 @@ function lazyLoadSrc(parent){
             _this.removeAttribute('lazy-src',null);
             _this.un('appear',imgLazySrc);
 
-            $(window).on('scroll',function(){
+            $(window).on('resize',function(){
                 img_resize();
             })
 
