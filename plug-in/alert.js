@@ -2,10 +2,13 @@
 示例
 $alert({
     // text:'出错啦，这是一段文字的描述，非常多的文字,文字排序\nsdfsdfdsfsdf',
-    text:'出错了',//文字
+    text:'出错了',//文字或dom对象
+    padding:null,
+    maxWidth:'auto',
     icon:'failed',//图标类型 failed|succeed|warning|confirm|loading
     // showClose:true,//显示X关闭按钮
-    mode:'mini',//模式：mini|input
+    mode:'mini',//模式：mini|input|full
+    clickMaskClose:true,//点击遮罩关闭
     autoClose:5000,// boolean|number
     displayAutoClose:true,//显示倒计时
     displayMask:true,//显示遮罩
@@ -46,12 +49,17 @@ function $alert(opts,rightOpts){
         data:{
             scrollbarWidth:window.innerWidth - document.documentElement.clientWidth,
             getTopZIndex:function(){
-                var indexTop = 0;
-                var all = document.querySelectorAll('body *');
-                [].forEach.call(all,function(item){
-                    indexTop = Math.max(item.style.zIndex+1, indexTop);
+                var  max = 0;
+                [].forEach.call(document.querySelectorAll('body *'),function(el){
+                    var zIndex = getComputedStyle(el).zIndex;
+                    var beforeZIndex =  getComputedStyle(el,'::before').zIndex;
+                    var afterZIndex =  getComputedStyle(el,'::after').zIndex;
+                    zIndex = /[0-9]+/.test(zIndex) ? zIndex : 0;
+                    beforeZIndex = /[0-9]+/.test(beforeZIndex) ? beforeZIndex : 0;
+                    afterZIndex = /[0-9]+/.test(afterZIndex) ? afterZIndex : 0;
+                    max = Math.max(max,zIndex,beforeZIndex,afterZIndex);
                 });
-                return indexTop;
+                return max+1;
             }
         },
         style:null,
@@ -63,7 +71,7 @@ function $alert(opts,rightOpts){
         initStyle:function(){
             if(!this.style){
                 this.style = document.createElement('style');
-                this.style.innerHTML = '@keyframes alert-default-in{0%{opacity:0;transform:scale3d(4,4,1)}100%{opacity:1}}@keyframes alert-default-out{0%{opacity:1}100%{opacity:0;transform:scale3d(4,4,1)}}@keyframes alert-mini-in{0%{opacity:0;transform:scale(.1)}100%{opacity:1;transform:scale(1)}}@keyframes alert-mini-out{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.1)}}.alert-default-in{animation:alert-default-in .3s ease-out}.alert-default-out{animation:alert-default-out .3s ease-out}.alert-mini-in{animation:alert-mini-in .3s ease-out}.alert-mini-out{animation:alert-mini-out .3s ease-out}.msgicon-ani-fade-zoom-out{animation:fade-zoom-out .1s ease-out}.alert-btn:focus{color:#00a0e9}.lock-scroll{overflow:hidden;margin-right:'+this.data.scrollbarWidth+'px}.yi-alert-box{position:relative;margin:1rem;background-color:#fff;border-radius:.5rem;overflow:hidden;box-shadow:0 0 .8rem rgba(0,0,0,0.1);pointer-events:all}.yi-alert-frame{position:fixed;width:100%;height:100%;left:0;top:0;font-size:14px}.yi-alert-mask{position:fixed;width:100%;height:100%;left:0;top:0;background-color:rgba(0,0,0,0.4);opacity:0;transition:all .3s}.yi-alert-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.yi-alert-container{display:flex;flex-wrap:wrap;align-items:center;padding:2rem;position:relative;flex-wrap:nowrap}.yi-alert-icon{display:block;width:2rem;height:2rem;animation:alert-mini-in .6s ease-out;margin-right:1rem}.yi-alert-icon>svg{width:100%;height:100%}.yi-alert-text{min-width:100px;max-width:300px;text-align:center;word-break:break-all}.yi-alert-close{margin-left:.5rem;cursor:pointer;right:.5rem;top:.5rem;position:absolute}.yi-alert-btn{background-color:transparent;border:none;outline:0;cursor:pointer;flex:1;padding:.5rem;transition:all .2s;white-space:nowrap}.yi-alert-btn:focus{text-shadow:0 4px 3px rgba(0,0,0,0.3);}.yi-alert-btn:active{box-shadow:inset 0 0 .5rem rgba(0,0,0,0.2);text-shadow:0 -1px 3px rgba(0,0,0,0.3);}.yi-alert-btn:not(:first-child){border-left:1px solid #e5e5e5}.yi-alert-btns{display:flex;border-top:1px solid #e5e5e5}.yi-alert-autoclose{color:#888;margin-left:.5rem;font-size:12px}.yi-alert-inputcontainer{display:block;padding:1rem}.yi-alert-input{border:1px solid #e5e5e5;width:100%;padding:.5rem;outline:0;border-radius:.3rem;font:inherit}.yi-alert-mini .yi-alert-box{pointer-events:all;padding:.3rem .5rem}.yi-alert-mini .yi-alert-icon{width:1rem;height:1rem}.yi-alert-mini .yi-alert-text{min-width:auto}.yi-alert-mini .yi-alert-container{padding:.5rem}.yi-alert-mini .yi-alert-btns{border-top:0;border-left:1px solid #e5e5e5;margin-left:1rem}.yi-alert-mini .yi-alert-btn{padding:0 .5rem}.yi-alert-mini .yi-alert-close{position:static}.yi-alert-nomask .yi-alert-mask{pointer-events:none;background-color:transparent}.yi-alert-nomask{pointer-events:none;background-color:transparent}';
+                this.style.innerHTML = '@keyframes alert-default-in{0%{opacity:0;transform:scale3d(4,4,1)}100%{opacity:1}}@keyframes alert-default-out{0%{opacity:1}100%{opacity:0;transform:scale3d(4,4,1)}}@keyframes alert-mini-in{0%{opacity:0;transform:scale(.1)}100%{opacity:1;transform:scale(1)}}@keyframes alert-mini-out{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.1)}}.alert-default-in{animation:alert-default-in .3s ease-out}.alert-default-out{animation:alert-default-out .3s ease-out}.alert-mini-in{animation:alert-mini-in .3s ease-out}.alert-mini-out{animation:alert-mini-out .3s ease-out}.msgicon-ani-fade-zoom-out{animation:fade-zoom-out .1s ease-out}.alert-btn:focus{color:#00a0e9}.lock-scroll{overflow:hidden;margin-right:'+this.data.scrollbarWidth+'px}.yi-alert-box{position:relative;margin:1rem;background-color:#fff;border-radius:.5rem;overflow:hidden;box-shadow:0 0 .8rem rgba(0,0,0,0.1);pointer-events:all}.yi-alert-full .yi-alert-box{width:100%;height:100%;margin:0;border-radius:0;overflow:hidden;overflow-y:auto;}.yi-alert-frame{position:fixed;width:100%;height:100%;left:0;top:0;font-size:14px}.yi-alert-mask{position:fixed;width:100%;height:100%;left:0;top:0;background-color:rgba(0,0,0,0.4);opacity:0;transition:all .3s}.yi-alert-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.yi-alert-container{display:flex;flex-wrap:wrap;align-items:center;padding:2rem;position:relative;flex-wrap:nowrap}.yi-alert-icon{display:block;width:2rem;height:2rem;animation:alert-mini-in .6s ease-out;margin-right:1rem}.yi-alert-icon>svg{width:100%;height:100%}.yi-alert-text{min-width:100px;max-width:300px;text-align:center;word-break:break-all}.yi-alert-close{margin-left:.5rem;cursor:pointer;right:.5rem;top:.5rem;position:absolute}.yi-alert-btn{background-color:transparent;border:none;outline:0;cursor:pointer;flex:1;padding:.5rem;transition:all .2s;white-space:nowrap}.yi-alert-btn:focus{text-shadow:0 4px 3px rgba(0,0,0,0.3);}.yi-alert-btn:active{box-shadow:inset 0 0 .5rem rgba(0,0,0,0.2);text-shadow:0 -1px 3px rgba(0,0,0,0.3);}.yi-alert-btn:not(:first-child){border-left:1px solid #e5e5e5}.yi-alert-btns{display:flex;border-top:1px solid #e5e5e5}.yi-alert-autoclose{color:#888;margin-left:.5rem;font-size:12px}.yi-alert-inputcontainer{display:block;padding:1rem}.yi-alert-input{border:1px solid #e5e5e5;width:100%;padding:.5rem;box-sizing:border-box;outline:0;border-radius:.3rem;font:inherit}.yi-alert-mini .yi-alert-box{pointer-events:all;padding:.3rem .5rem}.yi-alert-mini .yi-alert-icon{width:1rem;height:1rem}.yi-alert-mini .yi-alert-text{min-width:auto}.yi-alert-mini .yi-alert-container{padding:.5rem}.yi-alert-mini .yi-alert-btns{border-top:0;border-left:1px solid #e5e5e5;margin-left:1rem}.yi-alert-mini .yi-alert-btn{padding:0 .5rem}.yi-alert-mini .yi-alert-close{position:static}.yi-alert-nomask .yi-alert-mask{pointer-events:none;background-color:transparent}.yi-alert-nomask{pointer-events:none;background-color:transparent}';
                 document.querySelector('head').appendChild(this.style);
             }
         },
@@ -78,7 +86,22 @@ function $alert(opts,rightOpts){
                 || (typeof opts.displayMask == 'undefined' && opts.mode=='mini')//mini模式默认无遮罩
             ) && this.frame.classList.add('yi-alert-nomask');
             this.mainContainer = this.frame.querySelector('.yi-alert-container');
+            if(typeof opts.padding !='undefined'){
+                this.mainContainer.style.padding = opts.padding;
+            }
+            if(opts.clickMaskClose && this.frame.querySelector('.yi-alert-mask') ){
+                this.frame.querySelector('.yi-alert-mask').onclick = function(){
+                    app.alertClose();
+                }
+            }
+            if(opts.mode == 'full'){
+                this.frame.classList.add('yi-alert-full');
+            }
             this.box = this.frame.querySelector('.yi-alert-box');
+            if(typeof opts.maxWidth != 'undefined'){
+                this.box.style.maxWidth = opts.maxWidth;
+            }
+            this.setPlacement();
             this.setIcon();
             this.setText();
             this.holder = document.createElement('div');
@@ -87,7 +110,6 @@ function $alert(opts,rightOpts){
             this.setCloseBtn();
             this.setButtons();
             opts.mode == 'mini' && this.frame.classList.add('yi-alert-mini');
-            this.setPlacement();
             document.body.appendChild(this.frame);
             this.alertShow();
             
@@ -118,9 +140,14 @@ function $alert(opts,rightOpts){
             }
         },
         setText:function(){
-            if(typeof opts.text !='undefined'){
-                var textEle = document.createElement('div');
-                this.mainContainer.appendChild(textEle);
+            if(typeof opts.text == 'undefined') return;
+
+            var textEle = document.createElement('div');
+            this.mainContainer.appendChild(textEle);
+
+            if(typeof opts.text == 'object'){
+                textEle.appendChild(opts.text);
+            }else{
                 textEle.classList.add('yi-alert-text');
                 textEle.innerText = opts.text;
             }
@@ -224,7 +251,7 @@ function $alert(opts,rightOpts){
                 var name = 'alert-default-in';
                 if(opts.transitionName){
                     name = opts.transitionName+'-in';
-                }else if(opts.mode == 'mini'){
+                }else if(opts.mode == 'mini' || opts.mode == 'full'){
                     name = 'alert-mini-in';
                 }
                 app.box.classList.add(name);
@@ -233,7 +260,7 @@ function $alert(opts,rightOpts){
                 var name = 'alert-default-out';
                 if(opts.transitionName){
                     name = opts.transitionName+'-out';
-                }else if(opts.mode == 'mini'){
+                }else if(opts.mode == 'mini' || opts.mode == 'full'){
                     name = 'alert-mini-out';
                 }
                 app.box.classList.add(name);
